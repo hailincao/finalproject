@@ -1,0 +1,97 @@
+# Project proposal: Sleep duration and depressive symptoms in US adults
+
+## Research question
+
+How is nightly sleep duration associated with depressive symptoms among
+US adults aged 20 and older?
+
+## Data and provenance
+
+| Dataset | Source | Content |
+|----|----|----|
+| `NHANES` (R package `NHANES`) | CDC/NCHS National Health and Nutrition Examination Survey, 2009–2010 and 2011–2012 cycles | 10,000 participants resampled from `NHANESraw` to approximate a simple random sample of the US population; 76 demographic, health, and lifestyle variables |
+| `NHANESraw` (same package) | Same surveys, original sample | Includes survey weights (`WTINT2YR`, `WTMEC2YR`), PSU, and strata for design-based estimates |
+
+## Unit of analysis and population
+
+- **Unit:** individual survey participant.
+- **Population:** US adults aged 20 and older, 2009–2012.
+
+## Exposure
+
+- **Variable:** `SleepHrsNight`, self-reported usual hours of sleep on
+  weeknights or workdays (integer).
+- **Coding:** short ($`< 6`$ h), recommended ($`6`$–$`8`$ h, reference),
+  and long ($`> 8`$ h). The app will let users move these cutoffs.
+- **Missing data:** participants missing `SleepHrsNight` are excluded
+  from the primary complete-case analysis. The amount and pattern of
+  missingness will be reported, and a sensitivity analysis will use
+  multiple imputation (`mice`).
+
+## Outcome
+
+- **Variable:** `Depressed`, self-reported number of days in the past 2
+  weeks feeling down, depressed, or hopeless: None / Several / Most.
+- **Type:** **ordinal categorical** (three ordered levels). A binary
+  version (None vs. Several/Most) will be used as a secondary outcome.
+
+## Confounders (chosen a priori)
+
+- **Age** and **Gender**: both are associated with sleep patterns and
+  depression.
+- **Race1**: proxy for social and structural factors that affect sleep
+  and mental health.
+- **Poverty** (income-to-poverty ratio): financial stress affects both
+  sleep and mood.
+- **PhysActive**: may be a confounder, but could also be a mediator
+  (sleep → activity → mood). The primary model includes it, and a
+  sensitivity analysis drops it.
+
+## Anticipated limitations
+
+- **Cross-sectional design:** depression can disrupt sleep, so the
+  direction of the association cannot be established (reverse
+  causation).
+- **Self-report:** both sleep hours and depressive symptoms are
+  self-reported and subject to recall and reporting bias.
+- **Unmeasured confounding:** e.g., chronic illness, medications, shift
+  work.
+- **Survey design:** the resampled `NHANES` data approximate a simple
+  random sample. Design-based estimates from `NHANESraw` with survey
+  weights will be compared where feasible.
+
+## Planned deliverables
+
+1.  **Vignette: sleep and depression in NHANES.** Data provenance,
+    descriptive statistics, model results, findings, and limitations.
+
+2.  **Interactive Shiny app**, stored in `inst/shiny/` and launched with
+    a package function `run_app()`. Users can:
+
+    - choose an age range and the sleep cutoffs,
+    - add or remove confounders and compare unadjusted vs. adjusted odds
+      ratios,
+    - view the distribution of depressive symptoms by sleep category.
+
+    The app will be published with Shinylive in the pkgdown site, or on
+    shinyapps.io and linked from the vignette.
+
+    3.  **Second vignette: spatiotemporal patterns in US homicide
+        mortality** (`cdcmurd`, with `cdcfiremort`), updating the
+        classic
+        [`dslabs::murders`](https://rdrr.io/pkg/dslabs/man/murders.html)
+        examples.
+        - **Question:** How did state homicide rates change from 2014 to
+          2024, and do states with higher firearm death rates also have
+          higher homicide rates?
+        - **Data:** CDC/NCHS State Statistics. `cdcmurd` gives the
+          age-adjusted homicide rate per 100,000 (`Death.Rate`) and
+          death counts by state, 2005 and 2014–2024; `cdcfiremort` gives
+          the same measures for firearm deaths. The two tables are
+          joined by state and year. `cdcmurd` uses postal abbreviations
+          and `cdcfiremort` uses full state names, so they are matched
+          via `state.abb` / `state.name`.
+        - **Unit:** state-year (50 states + D.C., 2014–2024).
+        - **Limitations:** ecological, state-level data; firearm deaths
+          include suicides as well as homicides, so the two outcomes
+          overlap; small states have less stable rates.
